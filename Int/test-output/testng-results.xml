@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="2" passed="2">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="63359" started-at="2018-12-19T17:52:26Z" finished-at="2018-12-19T17:53:30Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="63359" started-at="2018-12-19T17:52:26Z" finished-at="2018-12-19T17:53:30Z">
+      <class name="Scenario_Search_Int.ScenSearch">
+        <test-method status="PASS" signature="InvalidTest(java.util.Map)[pri:0, instance:Scenario_Search_Int.ScenSearch@77cd7a0]" name="InvalidTest" duration-ms="31565" started-at="2018-12-19T23:22:27Z" data-provider="Invalid" finished-at="2018-12-19T23:22:58Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[{Execute_Flag=Y, TC_ID=GB_01, Script_name=InvalidSearch, Search_Item=###$, Exp_Result=Sorry! There are no products to display., Order_Set=1.0}]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- InvalidTest -->
+        <test-method status="PASS" signature="InvalidTest(java.util.Map)[pri:0, instance:Scenario_Search_Int.ScenSearch@77cd7a0]" name="InvalidTest" duration-ms="31407" started-at="2018-12-19T23:22:58Z" data-provider="Invalid" finished-at="2018-12-19T23:23:30Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[{Execute_Flag=Y, TC_ID=GB_01, Script_name=InvalidSearch, Search_Item=####, Exp_Result=Sorry! There are no products to display., Order_Set=2.0}]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- InvalidTest -->
+      </class> <!-- Scenario_Search_Int.ScenSearch -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
