@@ -15,16 +15,18 @@ export function Reports({ jobs }: ReportsProps) {
   const metrics = useMemo(() => {
     const submitted = jobs.filter(j => !['Wishlist', 'Preparing'].includes(j.status));
     const totalSubmitted = submitted.length;
-    
-    // A response is anything beyond 'Applied' and not 'Ghosted' (though rejection is a response)
+
+    // Response = any status past Applied (including rejections — silence is not a response)
     const responses = submitted.filter(j => !['Applied', 'Ghosted/Closed'].includes(j.status)).length;
     const responseRate = totalSubmitted > 0 ? Math.round((responses / totalSubmitted) * 100) : 0;
 
+    // Interview = reached Screening, Interviewing, or Offer Negotiation stage
     const interviews = submitted.filter(j => ['Screening', 'Interviewing', 'Offer Negotiation'].includes(j.status)).length;
     const interviewRate = totalSubmitted > 0 ? Math.round((interviews / totalSubmitted) * 100) : 0;
 
+    // Offers = actively in Offer Negotiation (distinct from interviewing)
     const offers = submitted.filter(j => j.status === 'Offer Negotiation').length;
-    
+
     return { totalSubmitted, responseRate, interviewRate, offers };
   }, [jobs]);
 
@@ -161,35 +163,57 @@ export function Reports({ jobs }: ReportsProps) {
           <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800/50">
             <h2 className="font-semibold text-sm tracking-wide">Priority Focus</h2>
           </div>
-          <div className="flex-1 p-4 min-h-0 w-full h-full relative flex items-center justify-center">
-            {jobs.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={priorityData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="60%"
-                    outerRadius="85%"
-                    paddingAngle={3}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {priorityData.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-sm text-slate-400">No jobs added yet</div>
-            )}
-            {/* Inner Custom Legend positioned in center */}
-            <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center pt-1">
-              <span className="text-4xl font-bold text-slate-800 dark:text-white">{jobs.length}</span>
-              <span className="text-[10px] mt-1 font-semibold uppercase tracking-[0.2em] text-slate-400">Total</span>
+          <div className="flex-1 p-4 min-h-0 w-full h-full flex flex-col">
+            <div className="relative flex-1 min-h-0 flex items-center justify-center">
+              {jobs.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={priorityData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="55%"
+                      outerRadius="80%"
+                      paddingAngle={3}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {priorityData.map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-sm text-slate-400">No jobs added yet</div>
+              )}
+              {/* Center count */}
+              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold text-slate-800 dark:text-white">{jobs.length}</span>
+                <span className="text-[10px] mt-0.5 font-semibold uppercase tracking-[0.2em] text-slate-400">Total</span>
+              </div>
             </div>
+
+            {/* Priority legend */}
+            {jobs.length > 0 && (
+              <div className="flex flex-col gap-2 mt-3 px-1">
+                {priorityData.map(entry => (
+                  <div key={entry.name} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: entry.fill }} />
+                      <span className="text-slate-600 dark:text-slate-300 font-medium">{entry.name} Priority</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-slate-900 dark:text-white">{entry.value}</span>
+                      <span className="text-[11px] text-slate-400">
+                        ({Math.round((entry.value / jobs.length) * 100)}%)
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

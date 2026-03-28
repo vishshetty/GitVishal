@@ -19,6 +19,7 @@
 
   --animate-fade-in: fadeIn 0.2s ease-out;
   --animate-slide-up: slideUp 0.25s ease-out;
+  --animate-slide-in-right: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
@@ -29,6 +30,11 @@
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @layer base {

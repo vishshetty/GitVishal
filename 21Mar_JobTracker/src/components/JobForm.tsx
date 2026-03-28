@@ -67,58 +67,77 @@ export function JobForm({ initial, defaultStatus = 'Wishlist', onSave, onClose }
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Company *" error={errors.company?.message}>
-              <input {...register('company', { required: 'Required' })} className={inputCls} placeholder="Google" />
-            </Field>
-            <Field label="Role *" error={errors.role?.message}>
-              <input {...register('role', { required: 'Required' })} className={inputCls} placeholder="Senior QA Engineer" />
-            </Field>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
+
+          {/* Section: Basic Info */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Basic Info</p>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Company *" error={errors.company?.message}>
+                  <input {...register('company', { required: 'Required' })} className={inputCls} placeholder="Google" autoFocus />
+                </Field>
+                <Field label="Role *" error={errors.role?.message}>
+                  <input {...register('role', { required: 'Required' })} className={inputCls} placeholder="Senior QA Engineer" />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Location / Work Model">
+                  <input {...register('location')} className={inputCls} placeholder="Remote / Hybrid" />
+                </Field>
+                <Field label="Priority">
+                  <select {...register('priority')} className={inputCls}>
+                    {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </Field>
+              </div>
+              <Field label="Job / LinkedIn URL">
+                <input {...register('url')} type="url" className={inputCls} placeholder="https://linkedin.com/jobs/..." />
+              </Field>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Location / Work Model">
-              <input {...register('location')} className={inputCls} placeholder="Remote" />
-            </Field>
-            <Field label="Priority">
-              <select {...register('priority')} className={inputCls}>
-                {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </Field>
+          <div className="border-t border-slate-100 dark:border-slate-800" />
+
+          {/* Section: Application Details */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Application Details</p>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Resume Used">
+                  <input {...register('resumeUsed')} className={inputCls} placeholder="QA_Lead_Resume_v2" />
+                </Field>
+                <Field label="Date Applied">
+                  <input {...register('dateApplied')} type="date" className={inputCls} />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Salary Range">
+                  <input {...register('salaryRange')} className={inputCls} placeholder="₹25-30 LPA" />
+                </Field>
+                <Field label="Status">
+                  <select {...register('status')} className={inputCls}>
+                    {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </Field>
+              </div>
+            </div>
           </div>
 
-          <Field label="Job / LinkedIn URL">
-            <input {...register('url')} type="url" className={inputCls} placeholder="https://linkedin.com/jobs/..." />
-          </Field>
+          <div className="border-t border-slate-100 dark:border-slate-800" />
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Resume Used">
-              <input {...register('resumeUsed')} className={inputCls} placeholder="QA_Lead_Resume_v2" />
-            </Field>
-            <Field label="Date Applied">
-              <input {...register('dateApplied')} type="date" className={inputCls} />
-            </Field>
+          {/* Section: Follow-up */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Follow-up</p>
+            <div className="space-y-3">
+              <Field label="Next Action / Deadline">
+                <input {...register('nextAction')} className={inputCls} placeholder="Follow up on Mon, Code challenge due Thu" />
+              </Field>
+              <Field label="Notes & Contacts">
+                <textarea {...register('notes')} rows={3} className={`${inputCls} resize-none`} placeholder="Recruiter: Jane Doe (jane@co.com) | Via referral from Alex..." />
+              </Field>
+            </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Salary Range">
-              <input {...register('salaryRange')} className={inputCls} placeholder="₹25-30 LPA" />
-            </Field>
-            <Field label="Status">
-              <select {...register('status')} className={inputCls}>
-                {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </Field>
-          </div>
-
-          <Field label="Next Action / Deadline">
-            <input {...register('nextAction')} className={inputCls} placeholder="Follow up on Mon, Code challenge due Thu" />
-          </Field>
-
-          <Field label="Notes & Contacts">
-            <textarea {...register('notes')} rows={3} className={`${inputCls} resize-none`} placeholder="Recruiter: Jane Doe (jane@co.com) | Via referral from Alex..." />
-          </Field>
 
           <div className="flex gap-2 pt-1">
             <button type="button" onClick={onClose} className="flex-1 py-2 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
