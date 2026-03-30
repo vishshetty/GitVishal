@@ -1,11 +1,27 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
 import path from 'path';
 
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: path.join(__dirname, '../../test_planner.sqlite'),
-  logging: false
-});
+// Use PostgreSQL in production (Vercel + Neon), SQLite for local dev
+let sequelize: Sequelize;
+
+if (process.env.DATABASE_URL) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+    logging: false
+  });
+} else {
+  sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: path.join(process.cwd(), 'backend', 'test_planner.sqlite'),
+    logging: false
+  });
+}
 
 export class JiraConnection extends Model {
   declare id: number;
