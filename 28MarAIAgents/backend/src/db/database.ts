@@ -9,9 +9,11 @@ const DB_PATH = isVercel ? '/tmp/test_planner.json' : path.join(process.cwd(), '
 class PureModel {
   static _data: any[] = [];
   static _nextId = 1;
+  static _typeName: string;
   id: number = 0;
   createdAt: Date = new Date();
   updatedAt: Date = new Date();
+  [key: string]: any;
 
   static async load() {
     try {
@@ -27,7 +29,7 @@ class PureModel {
   }
 
   static async persist() {
-    if (isVercel) return; // Vercel /tmp is transient anyway, persistence is handled per-session memory.
+    if (isVercel) return;
     try {
       const parent = path.dirname(DB_PATH);
       if (!fs.existsSync(parent)) fs.mkdirSync(parent, { recursive: true });
@@ -37,30 +39,32 @@ class PureModel {
     }
   }
 
-  static async findAll(opts?: any) {
-    let d = [...this._data].filter(x => x._type === (this as any)._typeName);
+  static async findAll(opts?: any): Promise<any[]> {
+    let d = [...this._data].filter(x => x._type === this._typeName);
     if (opts?.order?.[0]?.[0] === 'createdAt') {
       d.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
     return d.map(x => new this(x));
   }
 
-  static async findByPk(id: any) {
-    const found = this._data.find(x => x.id == id && x._type === (this as any)._typeName);
+  static async findByPk(id: any): Promise<any | null> {
+    const found = this._data.find(x => x.id == id && x._type === this._typeName);
     return found ? new this(found) : null;
   }
 
-  static async findOne(opts: any) {
+  static async findOne(opts?: any): Promise<any | null> {
     if (opts?.where) {
       const keys = Object.keys(opts.where);
-      const found = this._data.find(x => x._type === (this as any)._typeName && keys.every(k => x[k] === opts.where[k]));
+      const found = this._data.find(x => x._type === this._typeName && keys.every(k => x[k] === opts.where[k]));
       return found ? new this(found) : null;
     }
-    return null;
+    // No filter: return first matching record
+    const found = this._data.find(x => x._type === this._typeName);
+    return found ? new this(found) : null;
   }
 
   static async create(obj: any) {
-    const newObj = { ...obj, id: this._nextId++, createdAt: new Date(), updatedAt: new Date(), _type: (this as any)._typeName };
+    const newObj = { ...obj, id: this._nextId++, createdAt: new Date(), updatedAt: new Date(), _type: this._typeName };
     this._data.push(newObj);
     await this.persist();
     return new this(newObj);
@@ -68,20 +72,20 @@ class PureModel {
 
   static async destroy(opts: any) {
     if (opts?.where?.id) {
-      const tn = (this as any)._typeName;
+      const tn = this._typeName;
       this._data = this._data.filter(x => !(x.id == opts.where.id && x._type === tn));
       await this.persist();
     }
   }
 
   constructor(obj: any) { Object.assign(this, obj); }
-  
+
   async save() {
-    const dataRef = (this.constructor as any)._data;
-    const idx = dataRef.findIndex((x:any) => x.id === this.id && x._type === (this.constructor as any)._typeName);
+    const dataRef = (this.constructor as typeof PureModel)._data;
+    const idx = dataRef.findIndex((x:any) => x.id === this.id && x._type === (this.constructor as typeof PureModel)._typeName);
     if (idx !== -1) {
       dataRef[idx] = { ...this, updatedAt: new Date() };
-      await (this.constructor as any).persist();
+      await (this.constructor as typeof PureModel).persist();
     }
     return this;
   }
