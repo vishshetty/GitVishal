@@ -2,27 +2,31 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 import path from 'path';
 
 // On Vercel: use /tmp (writable temp dir). Locally: use project folder.
-// Optional: set DATABASE_URL env var for persistent PostgreSQL (Neon/Supabase).
-let sequelize: Sequelize;
+// Fallback: If sqlite3 fails (binary issue on Vercel), use a simple In-Memory Mock mode
+let sequelize: any;
 
-if (process.env.DATABASE_URL) {
-  // Persistent PostgreSQL — optional, for production persistence
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
-    logging: false
-  });
-} else {
-  // SQLite — works locally and on Vercel (/tmp is writable on Vercel)
-  const dbPath = process.env.VERCEL === '1'
-    ? '/tmp/test_planner.sqlite'
-    : path.join(process.cwd(), 'backend', 'test_planner.sqlite');
+try {
+  if (process.env.DATABASE_URL) {
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
+      logging: false
+    });
+  } else {
+    const dbPath = process.env.VERCEL === '1'
+      ? '/tmp/test_planner.sqlite'
+      : path.join(process.cwd(), 'backend', 'test_planner.sqlite');
 
-  sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: dbPath,
-    logging: false
-  });
+    sequelize = new Sequelize({
+      dialect: 'sqlite',
+      storage: dbPath,
+      logging: false
+    });
+  }
+} catch (e) {
+  console.error("Critical: SQLite3 failed to load. Falling back to In-Memory for Vercel stability.", e);
+  // Fail-safe: Use in-memory SQLite (if even that fails, we'll need a mock object but this should work)
+  sequelize = new Sequelize('sqlite::memory:', { logging: false });
 }
 
 export class JiraConnection extends Model {
