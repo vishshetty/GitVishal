@@ -1,24 +1,26 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
 import path from 'path';
 
-// Use PostgreSQL in production (Vercel + Neon), SQLite for local dev
+// On Vercel: use /tmp (writable temp dir). Locally: use project folder.
+// Optional: set DATABASE_URL env var for persistent PostgreSQL (Neon/Supabase).
 let sequelize: Sequelize;
 
 if (process.env.DATABASE_URL) {
+  // Persistent PostgreSQL — optional, for production persistence
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
+    dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
     logging: false
   });
 } else {
+  // SQLite — works locally and on Vercel (/tmp is writable on Vercel)
+  const dbPath = process.env.VERCEL === '1'
+    ? '/tmp/test_planner.sqlite'
+    : path.join(process.cwd(), 'backend', 'test_planner.sqlite');
+
   sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: path.join(process.cwd(), 'backend', 'test_planner.sqlite'),
+    storage: dbPath,
     logging: false
   });
 }
