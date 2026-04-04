@@ -1,49 +1,68 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { llmApi, jiraApi, issuesApi, planApi } from '../api';
-import { Check, ArrowRight, FileDown, Cpu, Globe, Ticket, ClipboardCheck, AlertCircle } from 'lucide-react';
+import { useToast } from '../components/Toast';
 import PasswordInput from '../components/PasswordInput';
+import {
+  Check, ArrowRight, FileDown, Cpu, Globe, Ticket, ClipboardCheck, AlertCircle,
+  Target, Settings, Plus, Bell, RotateCcw, Download, Eye
+} from 'lucide-react';
 
 const STEPS = [
-  { num: 1, label: 'LLM Setup', icon: Cpu },
-  { num: 2, label: 'Jira', icon: Globe },
-  { num: 3, label: 'Tickets', icon: Ticket },
-  { num: 4, label: 'Result', icon: ClipboardCheck },
+  { num: 1, label: 'Setup' },
+  { num: 2, label: 'Fetch Issues' },
+  { num: 3, label: 'Review' },
+  { num: 4, label: 'Test Plan' },
 ];
 
 export default function Wizard() {
+  const toast = useToast();
+  const navigate = useNavigate();
+
   const [activeStep, setActiveStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState([false, false, false, false]);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
 
-  const [llmForm, setLlmForm] = useState({ provider: 'ollama', urlKey: 'http://localhost:11434', model: 'llama3' });
-  const [llmHasKey, setLlmHasKey] = useState(false);
-  const [jiraForm, setJiraForm] = useState({ name: 'My Jira', host: '', email: '', token: '' });
+  // Step 1 — Connections
+  const [jiraConnections, setJiraConnections] = useState([]);
+  const [showJiraForm, setShowJiraForm] = useState(false);
+  const [jiraForm, setJiraForm] = useState({ name: '', host: '', email: '', token: '' });
   const [jiraHasToken, setJiraHasToken] = useState(false);
-  const [ticketForm, setTicketForm] = useState({ projectKey: '', sprint: '', context: '' });
+
+  // LLM (we still need it for generation but it lives in settings now)
+  const [llmReady, setLlmReady] = useState(false);
+  const [llmProvider, setLlmProvider] = useState('ollama');
+
+  // Step 2 — Fetch
+  const [fetchForm, setFetchForm] = useState({ productName: '', projectKey: '', sprint: '', context: '' });
   const [fetchedIssues, setFetchedIssues] = useState([]);
+
+  // Step 3 — Review
+  const [reviewContext, setReviewContext] = useState('');
+
+  // Step 4 — Result
   const [planResult, setPlanResult] = useState(null);
   const [historyResultId, setHistoryResultId] = useState(null);
 
   useEffect(() => {
-    llmApi.getAll().then(res => {
-      if (res.length > 0) {
-        const c = res[0];
-        setLlmForm({ provider: c.provider, urlKey: c.provider === 'ollama' ? (c.base_url || 'http://localhost:11434') : '', model: c.model });
-        setLlmHasKey(!!c.has_key);
+    loadConnections();
+  }, []);
+
+  const loadConnections = async () => {
+    try {
+      const [jiras, llms] = await Promise.all([jiraApi.getAll(), llmApi.getAll()]);
+      setJiraConnections(jiras);
+      if (jiras.length > 0) {
         setCompletedSteps(prev => { const n = [...prev]; n[0] = true; return n; });
       }
-    }).catch(() => {});
-
-    jiraApi.getAll().then(res => {
-      if (res.length > 0) {
-        setJiraForm({ name: res[0].connection_name, host: res[0].host, email: res[0].email, token: '' });
-        setJiraHasToken(!!res[0].has_token);
-        setCompletedSteps(prev => { const n = [...prev]; n[1] = true; return n; });
+      if (llms.length > 0) {
+        setLlmReady(true);
+        setLlmProvider(llms[0].provider);
       }
-    }).catch(() => {});
-  }, []);
+    } catch (e) { }
+  };
 
   const markComplete = (stepIndex) => {
     setCompletedSteps(prev => {
@@ -53,45 +72,53 @@ export default function Wizard() {
     });
   };
 
-  const handleLlmSubmit = async () => {
-    setLoading(true); setMsg(null);
-    try {
-      const payload = {
-        provider: llmForm.provider,
-        model: llmForm.model,
-        api_key: llmForm.provider === 'ollama' ? '' : llmForm.urlKey,
-        base_url: llmForm.provider === 'ollama' ? llmForm.urlKey : ''
-      };
-      const res = await llmApi.test(payload);
-      if (res.ok) {
-        await llmApi.save(payload);
-        setMsg({ type: 'success', text: 'LLM connection verified and saved!' });
-        markComplete(1);
-        setTimeout(() => { setActiveStep(2); setMsg(null); }, 1200);
-      } else {
-        setMsg({ type: 'error', text: res.message });
-      }
-    } catch (e) { setMsg({ type: 'error', text: 'Failed to connect to LLM. Check your configuration.' }); }
-    setLoading(false);
-  };
-
+  // --- Step 1: Save Jira Connection ---
   const handleJiraSubmit = async () => {
     setLoading(true); setMsg(null);
     try {
       const res = await jiraApi.test({ host: jiraForm.host, email: jiraForm.email, api_token: jiraForm.token });
       if (res.ok) {
-        await jiraApi.save({ connection_name: jiraForm.name, host: jiraForm.host, email: jiraForm.email, api_token: jiraForm.token });
-        setMsg({ type: 'success', text: 'Jira connection verified and saved!' });
-        markComplete(2);
-        setTimeout(() => { setActiveStep(3); setMsg(null); }, 1200);
+        await jiraApi.save({
+          connection_name: jiraForm.name || 'My Jira',
+          host: jiraForm.host,
+          email: jiraForm.email,
+          api_token: jiraForm.token
+        });
+        toast.success('Jira connection verified and saved!');
+        setShowJiraForm(false);
+        setJiraForm({ name: '', host: '', email: '', token: '' });
+        await loadConnections();
+        markComplete(1);
       } else {
         setMsg({ type: 'error', text: res.message });
+        toast.error('Jira connection failed. Check your credentials.');
       }
-    } catch (e) { setMsg({ type: 'error', text: 'Failed to connect to Jira. Check your credentials.' }); }
+    } catch (e) {
+      setMsg({ type: 'error', text: 'Failed to connect to Jira. Check your credentials.' });
+      toast.error('Network error connecting to Jira.');
+    }
     setLoading(false);
   };
 
-  const handleTicketSubmit = async () => {
+  const handleContinueToFetch = () => {
+    if (jiraConnections.length === 0) {
+      toast.error('Please add a Jira connection first.');
+      return;
+    }
+    if (!llmReady) {
+      toast.error('Please configure an LLM provider in Settings first.');
+      return;
+    }
+    markComplete(1);
+    setActiveStep(2);
+  };
+
+  // --- Step 2: Fetch Issues ---
+  const handleFetchIssues = async () => {
+    if (!fetchForm.projectKey.trim()) {
+      toast.error('Please enter a Project Key.');
+      return;
+    }
     setLoading(true); setMsg(null);
     try {
       const jiras = await jiraApi.getAll();
@@ -99,24 +126,42 @@ export default function Wizard() {
 
       const res = await issuesApi.fetch({
         connection_id: cId,
-        project_key: ticketForm.projectKey,
-        sprint_version: ticketForm.sprint || null
+        project_key: fetchForm.projectKey,
+        sprint_version: fetchForm.sprint || null
       });
 
       if (!res.ok || res.issues.length === 0) {
         setMsg({ type: 'error', text: res.message || 'No issues found for this project key.' });
+        toast.error(res.message || 'No issues found.');
         setLoading(false);
         return;
       }
 
       setFetchedIssues(res.issues);
-      setMsg({ type: 'success', text: `Fetched ${res.issues.length} issues. Generating test plan...` });
+      setReviewContext(fetchForm.context);
+      toast.success(`Fetched ${res.issues.length} issues from Jira!`);
+      markComplete(2);
+      setActiveStep(3);
+    } catch (e) {
+      setMsg({ type: 'error', text: e.response?.data?.detail || 'Error fetching issues.' });
+      toast.error('Error fetching issues from Jira.');
+    }
+    setLoading(false);
+  };
 
+  // --- Step 3: Generate Test Plan ---
+  const handleGeneratePlan = async () => {
+    if (fetchedIssues.length === 0) {
+      toast.error('No issues to generate a plan from. Go back and fetch issues first.');
+      return;
+    }
+    setLoading(true); setMsg(null);
+    try {
       const genRes = await planApi.generate({
-        issues: res.issues,
-        llm_provider: llmForm.provider,
-        additional_context: ticketForm.context,
-        project_key: ticketForm.projectKey
+        issues: fetchedIssues,
+        llm_provider: llmProvider,
+        additional_context: reviewContext || fetchForm.context,
+        project_key: fetchForm.projectKey
       });
 
       if (genRes.ok) {
@@ -125,13 +170,33 @@ export default function Wizard() {
         markComplete(3);
         markComplete(4);
         setActiveStep(4);
-        setMsg(null);
+        toast.success('Test plan generated successfully!');
       } else {
         setMsg({ type: 'error', text: genRes.message });
+        toast.error('Failed to generate test plan.');
       }
     } catch (e) {
-      setMsg({ type: 'error', text: e.response?.data?.detail || 'Error generating test plan. Please try again.' });
+      setMsg({ type: 'error', text: e.response?.data?.detail || 'Error generating test plan.' });
+      toast.error('Error generating test plan.');
     }
+    setLoading(false);
+  };
+
+  const handleRefreshIssues = async () => {
+    setLoading(true);
+    try {
+      const jiras = await jiraApi.getAll();
+      const cId = jiras.length > 0 ? jiras[jiras.length - 1].id : 1;
+      const res = await issuesApi.fetch({
+        connection_id: cId,
+        project_key: fetchForm.projectKey,
+        sprint_version: fetchForm.sprint || null
+      });
+      if (res.ok && res.issues.length > 0) {
+        setFetchedIssues(res.issues);
+        toast.success(`Refreshed: ${res.issues.length} issues`);
+      }
+    } catch (e) { toast.error('Error refreshing issues.'); }
     setLoading(false);
   };
 
@@ -141,28 +206,46 @@ export default function Wizard() {
     }
   };
 
+  const deleteJira = async (id) => {
+    if (!confirm('Remove this Jira connection?')) return;
+    await jiraApi.delete(id);
+    await loadConnections();
+    toast.info('Jira connection removed.');
+  };
+
   return (
     <div className="page-container">
-      <div className="dashboard-header">
-        <h1>Test Planner</h1>
-        <p>Connect your tools, fetch issues, and generate comprehensive test plans</p>
+      {/* App Header */}
+      <div className="app-header">
+        <div className="app-header-left">
+          <div className="app-header-icon">
+            <Target size={28} />
+          </div>
+          <div>
+            <h1>Intelligent Test Planning Agent</h1>
+            <div className="app-header-sub">Generate comprehensive test plans from Jira requirements using AI</div>
+          </div>
+        </div>
+        <div className="app-header-right">
+          <button className="btn btn-outline" onClick={() => navigate('/history')}>
+            <ClipboardCheck size={16} /> View History
+          </button>
+        </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="wizard-progress">
+      {/* Stepper */}
+      <div className="stepper">
         {STEPS.map((step, i) => (
-          <div className="wizard-progress-step" key={step.num}>
-            <div
-              className={`progress-dot ${activeStep === step.num ? 'active' : ''} ${completedSteps[i] ? 'completed' : ''}`}
-              onClick={() => setActiveStep(step.num)}
-            >
-              {completedSteps[i] && activeStep !== step.num ? <Check size={16} /> : step.num}
-              <span className="progress-label">{step.label}</span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div className={`progress-line ${completedSteps[i] ? 'completed' : ''}`} />
+          <button
+            key={step.num}
+            className={`stepper-tab ${activeStep === step.num ? 'active' : ''} ${completedSteps[i] && activeStep !== step.num ? 'completed' : ''}`}
+            onClick={() => setActiveStep(step.num)}
+          >
+            {completedSteps[i] && activeStep !== step.num && (
+              <span className="stepper-check"><Check size={11} /></span>
             )}
-          </div>
+            {step.num}. {step.label}
+          </button>
         ))}
       </div>
 
@@ -173,181 +256,289 @@ export default function Wizard() {
         </div>
       )}
 
-      {/* Step 1: LLM Connection */}
-      <div className={`wizard-step ${activeStep === 1 ? 'active' : 'collapsed'} ${completedSteps[0] ? 'completed' : ''}`}>
-        <div className="wizard-step-header" onClick={() => setActiveStep(1)}>
-          <div className="step-circle">{completedSteps[0] && activeStep !== 1 ? <Check size={16} /> : <Cpu size={16} />}</div>
-          <div style={{ flex: 1 }}>
-            <div className="step-title">LLM Connection</div>
-            <div className="step-subtitle">Configure your AI provider for test plan generation</div>
-          </div>
-          {completedSteps[0] && <span className="step-badge">Connected</span>}
-        </div>
-        {activeStep === 1 && (
-          <div className="wizard-step-content">
-            <div className="form-group">
-              <label>Provider</label>
-              <select className="form-control" value={llmForm.provider} onChange={e => {
-                const p = e.target.value;
-                let defaultModel = '';
-                if (p === 'ollama') defaultModel = 'llama3';
-                if (p === 'groq') defaultModel = 'llama-3.3-70b-versatile';
-                if (p === 'grok') defaultModel = 'grok-beta';
-                const newUrlKey = p === 'ollama' ? 'http://localhost:11434' : (llmForm.provider === 'ollama' ? '' : llmForm.urlKey);
-                setLlmForm({ ...llmForm, provider: p, model: defaultModel, urlKey: newUrlKey });
-              }}>
-                <option value="ollama">Ollama (Local / Private)</option>
-                <option value="groq">Groq (Cloud - Fast)</option>
-                <option value="grok">Grok (xAI)</option>
-              </select>
+      {/* ============ Step 1: Setup ============ */}
+      {activeStep === 1 && (
+        <div className="animate-in">
+          {/* Jira Connection Section */}
+          <div className="section-card">
+            <div className="section-card-header">
+              <h2>Jira Connection</h2>
+              <p>Connect to your Jira instance to fetch requirements</p>
             </div>
-            <div className="form-row">
-              <div className="form-group" style={{ flex: 2 }}>
-                <label>{llmForm.provider === 'ollama' ? 'Base URL' : 'API Key'}</label>
-                {llmForm.provider === 'ollama' ? (
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={llmForm.urlKey}
-                    onChange={e => setLlmForm({ ...llmForm, urlKey: e.target.value })}
-                    placeholder="http://localhost:11434"
-                  />
-                ) : (
+
+            {/* Existing connections */}
+            {jiraConnections.map(c => (
+              <div key={c.id} className="connection-card-inline">
+                <div className="connection-info-bar">
+                  <div className="connection-dot" />
+                  <div>
+                    <div className="connection-name-text">{c.connection_name}</div>
+                    <div className="connection-detail-text">{c.host} · {c.email}</div>
+                  </div>
+                </div>
+                <button className="btn btn-danger btn-icon" onClick={() => deleteJira(c.id)} title="Remove">
+                  <Settings size={14} />
+                </button>
+              </div>
+            ))}
+
+            {/* Add New / Cancel */}
+            {!showJiraForm ? (
+              <button className="btn" onClick={() => setShowJiraForm(true)} style={{ marginTop: jiraConnections.length > 0 ? '0.75rem' : 0 }}>
+                <Plus size={16} /> Add New Connection
+              </button>
+            ) : (
+              <div className="jira-form-container" style={{ marginTop: '1rem' }}>
+                <button className="btn" onClick={() => setShowJiraForm(false)} style={{ marginBottom: '1rem' }}>
+                  <Settings size={14} /> Cancel
+                </button>
+                <div className="section-divider" />
+
+                <div className="form-group">
+                  <label>Connection Name</label>
+                  <input type="text" className="form-control" value={jiraForm.name}
+                    onChange={e => setJiraForm({ ...jiraForm, name: e.target.value })}
+                    placeholder="e.g., VWO Production" />
+                </div>
+                <div className="form-group">
+                  <label>Jira URL</label>
+                  <input type="text" className="form-control" value={jiraForm.host}
+                    onChange={e => setJiraForm({ ...jiraForm, host: e.target.value })}
+                    placeholder="https://yourcompany.atlassian.net" />
+                </div>
+                <div className="form-group">
+                  <label>Jira Email</label>
+                  <input type="email" className="form-control" value={jiraForm.email}
+                    onChange={e => setJiraForm({ ...jiraForm, email: e.target.value })}
+                    placeholder="your-email@company.com" />
+                </div>
+                <div className="form-group">
+                  <label>API Token</label>
                   <PasswordInput
-                    value={llmForm.urlKey}
-                    onChange={e => setLlmForm({ ...llmForm, urlKey: e.target.value })}
-                    placeholder="sk-..."
-                    savedHint={llmHasKey}
+                    value={jiraForm.token}
+                    onChange={e => setJiraForm({ ...jiraForm, token: e.target.value })}
+                    placeholder="Your Jira API token"
+                    savedHint={jiraHasToken}
                   />
-                )}
+                  <div className="form-hint">Generate at: https://id.atlassian.com/manage-profile/security/api-tokens</div>
+                </div>
+                <button className="btn btn-primary" onClick={handleJiraSubmit} disabled={loading}>
+                  {loading ? <><span className="spinner" /> Testing...</> : 'Save Connection'}
+                </button>
               </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Model</label>
-                <input type="text" className="form-control" value={llmForm.model}
-                  onChange={e => setLlmForm({ ...llmForm, model: e.target.value })}
-                  placeholder="llama3" />
-              </div>
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-              <button className="btn btn-primary" style={{ borderRadius: '999px', padding: '0.75rem 2.5rem' }}
-                onClick={handleLlmSubmit} disabled={loading}>
-                {loading ? <><span className="spinner" /> Testing...</> : <>Test & Continue <ArrowRight size={16} /></>}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+            )}
 
-      {/* Step 2: Jira Connection */}
-      <div className={`wizard-step ${activeStep === 2 ? 'active' : 'collapsed'} ${completedSteps[1] ? 'completed' : ''}`}>
-        <div className="wizard-step-header" onClick={() => setActiveStep(2)}>
-          <div className="step-circle">{completedSteps[1] && activeStep !== 2 ? <Check size={16} /> : <Globe size={16} />}</div>
-          <div style={{ flex: 1 }}>
-            <div className="step-title">Jira Connection</div>
-            <div className="step-subtitle">Link your Atlassian workspace to fetch user stories</div>
+            <div className="section-divider" />
+
+            <button className="btn btn-primary-full" onClick={handleContinueToFetch} disabled={jiraConnections.length === 0}>
+              Continue to Fetch Issues <ArrowRight size={16} />
+            </button>
           </div>
-          {completedSteps[1] && <span className="step-badge">Connected</span>}
+
+          {/* Integration Tools Section */}
+          <div className="section-card">
+            <div className="integrations-header">
+              <h2>Import from Test Management Tools</h2>
+              <p>Connect to your existing test case repositories and management platforms</p>
+            </div>
+            <div className="integrations-grid">
+              {/* Jira Card */}
+              <div className="integration-card available">
+                <div className="integration-card-top">
+                  <div className="integration-icon jira"><Target size={20} /></div>
+                  <div>
+                    <div className="integration-name">Jira</div>
+                    <span className="integration-badge available">Available</span>
+                  </div>
+                </div>
+                <div className="integration-desc">Import requirements and user stories from Atlassian Jira</div>
+                <div className="integration-features">
+                  <strong>Key Features:</strong>
+                  <ul>
+                    <li>Requirements import</li>
+                    <li>User stories</li>
+                    <li>Acceptance criteria</li>
+                  </ul>
+                </div>
+                <button className="btn btn-primary" onClick={() => { setShowJiraForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  Connect
+                </button>
+              </div>
+
+              {/* TestRail Card */}
+              <div className="integration-card">
+                <div className="integration-card-top">
+                  <div className="integration-icon testrail"><ClipboardCheck size={20} /></div>
+                  <div>
+                    <div className="integration-name">TestRail</div>
+                    <span className="integration-badge coming-soon">Coming Soon</span>
+                  </div>
+                </div>
+                <div className="integration-desc">Import existing test cases and test suites from TestRail</div>
+                <div className="integration-features">
+                  <strong>Key Features:</strong>
+                  <ul>
+                    <li>Test cases</li>
+                    <li>Test suites</li>
+                    <li>Test runs</li>
+                  </ul>
+                </div>
+                <button className="btn" disabled style={{ opacity: 0.7 }}>
+                  <Bell size={14} /> Notify Me
+                </button>
+              </div>
+
+              {/* Zephyr Card */}
+              <div className="integration-card">
+                <div className="integration-card-top">
+                  <div className="integration-icon zephyr"><Cpu size={20} /></div>
+                  <div>
+                    <div className="integration-name">Zephyr</div>
+                    <span className="integration-badge coming-soon">Coming Soon</span>
+                  </div>
+                </div>
+                <div className="integration-desc">Sync test cases from Zephyr Scale or Zephyr Squad</div>
+                <div className="integration-features">
+                  <strong>Key Features:</strong>
+                  <ul>
+                    <li>Test cases</li>
+                    <li>Test cycles</li>
+                    <li>Test execution</li>
+                  </ul>
+                </div>
+                <button className="btn" disabled style={{ opacity: 0.7 }}>
+                  <Bell size={14} /> Notify Me
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        {activeStep === 2 && (
-          <div className="wizard-step-content">
+      )}
+
+      {/* ============ Step 2: Fetch Issues ============ */}
+      {activeStep === 2 && (
+        <div className="animate-in">
+          <div className="section-card">
+            <div className="section-card-header">
+              <h2>Fetch Jira Requirements</h2>
+              <p>Enter project details to fetch user stories and requirements</p>
+            </div>
+
             <div className="form-row">
               <div className="form-group">
-                <label>Host URL</label>
-                <input type="text" className="form-control" value={jiraForm.host}
-                  onChange={e => setJiraForm({ ...jiraForm, host: e.target.value })}
-                  placeholder="yourcompany.atlassian.net" />
+                <label>Product Name</label>
+                <input type="text" className="form-control" value={fetchForm.productName}
+                  onChange={e => setFetchForm({ ...fetchForm, productName: e.target.value })}
+                  placeholder="e.g., App.vwo.com" />
               </div>
               <div className="form-group">
-                <label>Email Address</label>
-                <input type="email" className="form-control" value={jiraForm.email}
-                  onChange={e => setJiraForm({ ...jiraForm, email: e.target.value })}
-                  placeholder="you@company.com" />
+                <label>Project Key <span className="required">*</span></label>
+                <input type="text" className="form-control" value={fetchForm.projectKey}
+                  onChange={e => setFetchForm({ ...fetchForm, projectKey: e.target.value })}
+                  placeholder="e.g., VWOAPP" />
               </div>
             </div>
+
             <div className="form-group">
-              <label>API Token</label>
-              <PasswordInput
-                value={jiraForm.token}
-                onChange={e => setJiraForm({ ...jiraForm, token: e.target.value })}
-                placeholder="Atlassian API Token from security settings"
-                savedHint={jiraHasToken}
-              />
-              <div className="form-hint">Generate at id.atlassian.com &gt; Security &gt; API tokens</div>
+              <label>Sprint/Fix Version (Optional)</label>
+              <input type="text" className="form-control" value={fetchForm.sprint}
+                onChange={e => setFetchForm({ ...fetchForm, sprint: e.target.value })}
+                placeholder="e.g., Sprint 15 or leave empty for all open issues" />
             </div>
-            <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-              <button className="btn btn-primary" style={{ borderRadius: '999px', padding: '0.75rem 2.5rem' }}
-                onClick={handleJiraSubmit} disabled={loading}>
-                {loading ? <><span className="spinner" /> Testing...</> : <>Test & Continue <ArrowRight size={16} /></>}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
 
-      {/* Step 3: Ticket Information */}
-      <div className={`wizard-step ${activeStep === 3 ? 'active' : 'collapsed'} ${completedSteps[2] ? 'completed' : ''}`}>
-        <div className="wizard-step-header" onClick={() => setActiveStep(3)}>
-          <div className="step-circle">{completedSteps[2] && activeStep !== 3 ? <Check size={16} /> : <Ticket size={16} />}</div>
-          <div style={{ flex: 1 }}>
-            <div className="step-title">Ticket Information</div>
-            <div className="step-subtitle">Specify which issues to include in the test plan</div>
-          </div>
-          {completedSteps[2] && <span className="step-badge">{fetchedIssues.length} issues</span>}
-        </div>
-        {activeStep === 3 && (
-          <div className="wizard-step-content">
-            <div className="form-row">
-              <div className="form-group">
-                <label>Jira Project Key or Ticket ID</label>
-                <input type="text" className="form-control" value={ticketForm.projectKey}
-                  onChange={e => setTicketForm({ ...ticketForm, projectKey: e.target.value })}
-                  placeholder="e.g. KAN or KAN-123" />
-                <div className="form-hint">Enter a project key for all issues, or a specific ticket ID</div>
-              </div>
-              <div className="form-group">
-                <label>Sprint / Version (Optional)</label>
-                <input type="text" className="form-control" value={ticketForm.sprint}
-                  onChange={e => setTicketForm({ ...ticketForm, sprint: e.target.value })}
-                  placeholder="e.g. Sprint 1" />
-              </div>
-            </div>
             <div className="form-group">
               <label>Additional Context (Optional)</label>
-              <textarea rows="3" className="form-control" value={ticketForm.context}
-                onChange={e => setTicketForm({ ...ticketForm, context: e.target.value })}
-                placeholder="e.g. Focus on edge cases for the login flow, include security testing..." />
+              <textarea rows="4" className="form-control" value={fetchForm.context}
+                onChange={e => setFetchForm({ ...fetchForm, context: e.target.value })}
+                placeholder="Any additional information about the product, testing goals, or constraints..." />
             </div>
-            <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-              <button className="btn btn-primary" style={{ borderRadius: '999px', padding: '0.75rem 2.5rem' }}
-                onClick={handleTicketSubmit} disabled={loading || !ticketForm.projectKey.trim()}>
-                {loading ? <><span className="spinner" /> Generating Test Plan...</> : <>Generate Test Plan <ArrowRight size={16} /></>}
+
+            <button className="btn btn-primary-full" onClick={handleFetchIssues} disabled={loading || !fetchForm.projectKey.trim()}>
+              {loading ? <><span className="spinner" /> Fetching Issues...</> : <><Download size={16} /> Fetch Jira Issues</>}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ============ Step 3: Review ============ */}
+      {activeStep === 3 && (
+        <div className="animate-in">
+          {/* Connection Info Bar */}
+          <div className="section-card" style={{ padding: '0.85rem 1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="connection-dot" />
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{fetchForm.projectKey || 'None'}</span>
+              </div>
+              <button className="btn btn-ghost" onClick={handleRefreshIssues} disabled={loading} style={{ fontSize: '0.82rem' }}>
+                <RotateCcw size={14} /> Refresh Issues
               </button>
             </div>
           </div>
-        )}
-      </div>
 
-      {/* Step 4: Generated Result */}
-      <div className={`wizard-step ${activeStep === 4 ? 'active' : 'collapsed'} ${completedSteps[3] ? 'completed' : ''}`}>
-        <div className="wizard-step-header" onClick={() => setActiveStep(4)}>
-          <div className="step-circle">{completedSteps[3] && activeStep !== 4 ? <Check size={16} /> : <ClipboardCheck size={16} />}</div>
-          <div style={{ flex: 1 }}>
-            <div className="step-title">Generated Test Plan</div>
-            <div className="step-subtitle">Review and export your comprehensive test plan</div>
+          {/* Additional Context */}
+          <div className="section-card">
+            <div className="section-card-header">
+              <h2>Additional Context & Notes</h2>
+              <p>Add any additional context, special requirements, or constraints</p>
+            </div>
+            <textarea rows="4" className="form-control" value={reviewContext}
+              onChange={e => setReviewContext(e.target.value)}
+              placeholder="Add any additional context about the testing approach, special requirements, constraints, team structure, or specific areas of focus..." />
+          </div>
+
+          {/* Review Issues */}
+          <div className="section-card">
+            <div className="issues-summary-bar">
+              <div>
+                <h3>Review Jira Issues ({fetchedIssues.length})</h3>
+                <p>Issues that will be used to generate the test plan</p>
+              </div>
+            </div>
+
+            {fetchedIssues.length > 0 ? (
+              <div className="issues-list">
+                {fetchedIssues.map((issue, i) => (
+                  <div key={i} className="issue-row">
+                    <span className="issue-key">{issue.key}</span>
+                    <span className="issue-summary">{issue.summary}</span>
+                    <span className={`issue-badge ${(issue.priority || '').toLowerCase()}`}>
+                      {issue.issue_type || issue.priority || 'Story'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state" style={{ padding: '2rem 1rem' }}>
+                <p>No issues fetched yet. Go back to Step 2 to fetch issues.</p>
+              </div>
+            )}
+
+            <div style={{ marginTop: '1.5rem' }}>
+              <button className="btn btn-primary-full" onClick={handleGeneratePlan} disabled={loading || fetchedIssues.length === 0}>
+                {loading ? <><span className="spinner" /> Generating Test Plan...</> : <><Target size={16} /> Generate Test Plan</>}
+              </button>
+            </div>
           </div>
         </div>
-        {activeStep === 4 && (
-          <div className="wizard-step-content">
+      )}
+
+      {/* ============ Step 4: Test Plan ============ */}
+      {activeStep === 4 && (
+        <div className="animate-in">
+          <div className="section-card">
             {planResult ? (
               <>
                 <div className="plan-header">
                   <div>
                     <h3>Test Plan Generated</h3>
-                    <div className="plan-header-sub">{fetchedIssues.length} issues analyzed &middot; {planResult.test_cases?.length || 0} test cases</div>
+                    <div className="plan-header-sub">{fetchedIssues.length} issues analyzed · {planResult.test_cases?.length || 0} test cases</div>
                   </div>
-                  <button className="btn btn-primary" onClick={downloadDocx}>
-                    <FileDown size={16} /> Export .DOCX
-                  </button>
+                  <div className="plan-actions">
+                    <button className="btn btn-primary" onClick={downloadDocx}>
+                      <FileDown size={16} /> Export .DOCX
+                    </button>
+                  </div>
                 </div>
 
                 <div className="markdown-preview">
@@ -417,13 +608,13 @@ export default function Wizard() {
                 <div className="empty-state-icon">
                   <ClipboardCheck size={32} />
                 </div>
-                <h3>No test plan yet</h3>
-                <p>Complete the previous steps to generate a comprehensive test plan from your Jira issues.</p>
+                <h3>No test plan generated yet</h3>
+                <p>Complete the previous steps to generate your test plan</p>
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

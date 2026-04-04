@@ -25,42 +25,40 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="app-container">
-      <div className="sidebar">
-        <div className="sidebar-brand">
-          <div className="sidebar-brand-icon">
-            <Zap size={18} color="white" />
+    <div className="app-layout">
+      <header className="top-header">
+        <Link to="/" className="header-brand">
+          <div className="header-brand-icon">
+            <Zap size={20} color="white" />
           </div>
           <div>
-            <div className="sidebar-brand-text">TestPlanner</div>
-            <div className="sidebar-brand-sub">AI-Powered QA</div>
+            <div className="header-brand-text">TestPlanner</div>
+            <div className="header-brand-sub">AI-Powered QA</div>
           </div>
-        </div>
+        </Link>
 
-        <div className="sidebar-section-label">Main</div>
-        <nav className="sidebar-nav">
-          <Link to="/new-plan" className={`nav-item ${isActive('/new-plan') ? 'active' : ''}`}>
-            <FileText size={18} /> New Plan
+        <nav className="header-nav">
+          <Link to="/new-plan" className={`header-nav-link ${isActive('/new-plan') ? 'active' : ''}`}>
+            <FileText size={16} /> New Plan
           </Link>
-          <Link to="/history" className={`nav-item ${isActive('/history') ? 'active' : ''}`}>
-            <History size={18} /> History
+          <Link to="/history" className={`header-nav-link ${isActive('/history') ? 'active' : ''}`}>
+            <History size={16} /> History
           </Link>
-          <Link to="/settings" className={`nav-item ${isActive('/settings') ? 'active' : ''}`}>
-            <Settings size={18} /> Settings
+          <Link to="/settings" className={`header-nav-link ${isActive('/settings') ? 'active' : ''}`}>
+            <Settings size={16} /> Settings
           </Link>
         </nav>
 
-        <div className="sidebar-footer">
-          <button className="theme-toggle" onClick={toggleTheme}>
-            {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
-            {theme === 'light' ? 'Dark' : 'Light'} Mode
+        <div className="header-actions">
+          <button className="theme-btn" onClick={toggleTheme} title={theme === 'light' ? 'Dark mode' : 'Light mode'}>
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
         </div>
-      </div>
+      </header>
 
-      <div className="main-content">
+      <main className="main-content">
         {children}
-      </div>
+      </main>
     </div>
   );
 }

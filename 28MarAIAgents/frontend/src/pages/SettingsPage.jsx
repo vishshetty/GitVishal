@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { llmApi, jiraApi } from '../api';
+import { useToast } from '../components/Toast';
 import { Cpu, Globe, Trash2, Plus, Check, AlertCircle } from 'lucide-react';
 import PasswordInput from '../components/PasswordInput';
 
 export default function SettingsPage() {
+  const toast = useToast();
   const [llmConnections, setLlmConnections] = useState([]);
   const [jiraConnections, setJiraConnections] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [msg, setMsg] = useState(null);
 
   // LLM form
   const [showLlmForm, setShowLlmForm] = useState(false);
@@ -33,7 +34,7 @@ export default function SettingsPage() {
   };
 
   const handleSaveLlm = async () => {
-    setLlmTesting(true); setMsg(null);
+    setLlmTesting(true);
     try {
       const payload = {
         provider: llmForm.provider,
@@ -44,52 +45,53 @@ export default function SettingsPage() {
       const res = await llmApi.test(payload);
       if (res.ok) {
         await llmApi.save(payload);
-        setMsg({ type: 'success', text: 'LLM connection saved!' });
+        toast.success('LLM connection saved!');
         setShowLlmForm(false);
         loadAll();
       } else {
-        setMsg({ type: 'error', text: res.message });
+        toast.error(res.message || 'LLM connection failed.');
       }
-    } catch (e) { setMsg({ type: 'error', text: 'Failed to connect to LLM.' }); }
+    } catch (e) { toast.error('Failed to connect to LLM.'); }
     setLlmTesting(false);
   };
 
   const handleSaveJira = async () => {
-    setJiraTesting(true); setMsg(null);
+    setJiraTesting(true);
     try {
       const res = await jiraApi.test({ host: jiraForm.host, email: jiraForm.email, api_token: jiraForm.token });
       if (res.ok) {
         await jiraApi.save({ connection_name: jiraForm.name, host: jiraForm.host, email: jiraForm.email, api_token: jiraForm.token });
-        setMsg({ type: 'success', text: 'Jira connection saved!' });
+        toast.success('Jira connection saved!');
         setShowJiraForm(false);
         setJiraForm({ name: '', host: '', email: '', token: '' });
         loadAll();
       } else {
-        setMsg({ type: 'error', text: res.message });
+        toast.error(res.message || 'Jira connection failed.');
       }
-    } catch (e) { setMsg({ type: 'error', text: 'Failed to connect to Jira.' }); }
+    } catch (e) { toast.error('Failed to connect to Jira.'); }
     setJiraTesting(false);
   };
 
   const deleteJira = async (id) => {
     if (!confirm('Remove this Jira connection?')) return;
     await jiraApi.delete(id);
+    toast.info('Jira connection removed.');
     loadAll();
   };
 
   return (
     <div className="page-container">
-      <div className="dashboard-header">
-        <h1>Settings</h1>
-        <p>Manage your LLM and Jira connections</p>
-      </div>
-
-      {msg && (
-        <div className={`alert alert-${msg.type}`}>
-          {msg.type === 'error' ? <AlertCircle size={16} /> : <Check size={16} />}
-          {msg.text}
+      <div className="app-header" style={{ marginBottom: '2rem' }}>
+        <div className="app-header-left">
+          <div className="app-header-icon" style={{ background: 'linear-gradient(135deg, #e0e7ff, #f3e8ff)' }}>
+            <Cpu size={28} style={{ color: '#7c3aed' }} />
+          </div>
+          <div>
+            <h1>Settings</h1>
+            <div className="app-header-sub">Manage your LLM and Jira connections</div>
+          </div>
         </div>
-      )}
+      </div>
 
       {/* LLM Section */}
       <div className="settings-section">
@@ -179,7 +181,7 @@ export default function SettingsPage() {
       {/* Jira Section */}
       <div className="settings-section">
         <div className="settings-section-header">
-          <div className="settings-section-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success-color)' }}>
+          <div className="settings-section-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
             <Globe size={18} />
           </div>
           <div>
@@ -194,10 +196,10 @@ export default function SettingsPage() {
               <div className="connection-status" />
               <div>
                 <div className="connection-name">{c.connection_name}</div>
-                <div className="connection-detail">{c.host} &middot; {c.email}</div>
+                <div className="connection-detail">{c.host} · {c.email}</div>
               </div>
             </div>
-            <button className="btn btn-danger" onClick={() => deleteJira(c.id)} style={{ padding: '0.4rem 0.6rem' }}>
+            <button className="btn btn-danger btn-icon" onClick={() => deleteJira(c.id)} title="Remove">
               <Trash2 size={14} />
             </button>
           </div>
