@@ -137,13 +137,13 @@ export default function SettingsPage() {
               <label>Provider</label>
               <select className="form-control" value={llmForm.provider} onChange={e => {
                 const p = e.target.value;
-                let model = p === 'ollama' ? 'llama3' : p === 'groq' ? 'llama-3.3-70b-versatile' : 'grok-beta';
+                let model = p === 'ollama' ? 'gemma3:1b' : p === 'groq' ? 'llama-3.3-70b-versatile' : 'gemini-1.5-pro';
                 let urlKey = p === 'ollama' ? 'http://localhost:11434' : '';
                 setLlmForm({ provider: p, model, urlKey });
               }}>
-                <option value="ollama">Ollama (Local)</option>
-                <option value="groq">Groq (Cloud)</option>
-                <option value="grok">Grok (xAI)</option>
+                <option value="groq">Groq.com (Cloud - llama 4, gemma, gpt-120b equivalents)</option>
+                <option value="gemini">Gemini API (Free)</option>
+                <option value="ollama">Ollama Local (gemma3:1b)</option>
               </select>
             </div>
             <div className="form-row">

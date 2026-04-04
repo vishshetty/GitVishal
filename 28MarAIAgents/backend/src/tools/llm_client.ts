@@ -4,6 +4,7 @@ import { OpenAI } from 'openai';
 const CONFIG: Record<string, any> = {
     groq: { baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile' },
     grok: { baseUrl: 'https://api.x.ai/v1', defaultModel: 'grok-beta' },
+    gemini: { baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', defaultModel: 'gemini-1.5-pro' },
     ollama: { baseUrl: 'http://localhost:11434/v1', defaultModel: 'llama3' }
 };
 

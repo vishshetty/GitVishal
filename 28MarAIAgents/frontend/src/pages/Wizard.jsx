@@ -31,9 +31,13 @@ export default function Wizard() {
   const [jiraForm, setJiraForm] = useState({ name: '', host: '', email: '', token: '' });
   const [jiraHasToken, setJiraHasToken] = useState(false);
 
-  // LLM (we still need it for generation but it lives in settings now)
+  // LLM State
+  const [llmConnections, setLlmConnections] = useState([]);
+  const [showLlmForm, setShowLlmForm] = useState(false);
+  const [llmForm, setLlmForm] = useState({ provider: 'groq', urlKey: '', model: '' });
+  const [llmTesting, setLlmTesting] = useState(false);
   const [llmReady, setLlmReady] = useState(false);
-  const [llmProvider, setLlmProvider] = useState('ollama');
+  const [llmProvider, setLlmProvider] = useState('groq');
 
   // Step 2 — Fetch
   const [fetchForm, setFetchForm] = useState({ productName: '', projectKey: '', sprint: '', context: '' });
@@ -54,8 +58,11 @@ export default function Wizard() {
     try {
       const [jiras, llms] = await Promise.all([jiraApi.getAll(), llmApi.getAll()]);
       setJiraConnections(jiras);
-      if (jiras.length > 0) {
+      setLlmConnections(llms);
+      if (jiras.length > 0 && llms.length > 0) {
         setCompletedSteps(prev => { const n = [...prev]; n[0] = true; return n; });
+      } else {
+        setCompletedSteps(prev => { const n = [...prev]; n[0] = false; return n; });
       }
       if (llms.length > 0) {
         setLlmReady(true);
@@ -98,6 +105,32 @@ export default function Wizard() {
       toast.error('Network error connecting to Jira.');
     }
     setLoading(false);
+  };
+
+  // --- Step 1: Save LLM Connection ---
+  const handleLlmSubmit = async () => {
+    setLlmTesting(true); setMsg(null);
+    try {
+      const payload = {
+        provider: llmForm.provider,
+        model: llmForm.model,
+        api_key: llmForm.provider === 'ollama' ? '' : llmForm.urlKey,
+        base_url: llmForm.provider === 'ollama' ? llmForm.urlKey : ''
+      };
+      const res = await llmApi.test(payload);
+      if (res.ok) {
+        await llmApi.save(payload);
+        toast.success(`LLM connection to ${llmForm.provider} verified and saved!`);
+        setShowLlmForm(false);
+        await loadConnections();
+      } else {
+        setMsg({ type: 'error', text: res.message });
+        toast.error('LLM connection failed.');
+      }
+    } catch (e) {
+      toast.error('Failed to connect to LLM.');
+    }
+    setLlmTesting(false);
   };
 
   const handleContinueToFetch = () => {
@@ -259,6 +292,83 @@ export default function Wizard() {
       {/* ============ Step 1: Setup ============ */}
       {activeStep === 1 && (
         <div className="animate-in">
+          {/* LLM Connection Section */}
+          <div className="section-card">
+            <div className="section-card-header">
+              <h2>LLM Connection</h2>
+              <p>Configure the AI model used for generating test plans</p>
+            </div>
+
+            {llmConnections.length > 0 && !showLlmForm && (
+              <div className="connection-card-inline">
+                <div className="connection-info-bar">
+                  <div className="connection-dot" />
+                  <div>
+                    <div className="connection-name-text">{llmConnections[0].provider.toUpperCase()}</div>
+                    <div className="connection-detail-text">Model: {llmConnections[0].model}</div>
+                  </div>
+                </div>
+                <button className="btn btn-ghost" onClick={() => {
+                  const c = llmConnections[0];
+                  setLlmForm({ provider: c.provider, urlKey: c.provider === 'ollama' ? (c.base_url || 'http://localhost:11434') : '', model: c.model });
+                  setShowLlmForm(true);
+                }}>Edit</button>
+              </div>
+            )}
+
+            {(!llmConnections.length || showLlmForm) ? (
+              <div className="jira-form-container" style={{ marginTop: llmConnections.length ? '1rem' : 0 }}>
+                {llmConnections.length > 0 && (
+                  <>
+                    <button className="btn" onClick={() => setShowLlmForm(false)} style={{ marginBottom: '1rem' }}>
+                      <Settings size={14} /> Cancel
+                    </button>
+                    <div className="section-divider" />
+                  </>
+                )}
+
+                <div className="form-group">
+                  <label>Provider</label>
+                  <select className="form-control" value={llmForm.provider} onChange={e => {
+                    const p = e.target.value;
+                    let model = p === 'ollama' ? 'gemma3:1b' : p === 'groq' ? 'llama-3.3-70b-versatile' : 'gemini-1.5-pro';
+                    let urlKey = p === 'ollama' ? 'http://localhost:11434' : '';
+                    setLlmForm({ provider: p, model, urlKey });
+                  }}>
+                    <option value="groq">Groq.com (Cloud - llama 4, gemma, gpt-120b equivalents)</option>
+                    <option value="gemini">Gemini API (Free)</option>
+                    <option value="ollama">Ollama Local (gemma3:1b)</option>
+                  </select>
+                </div>
+                <div className="form-row">
+                  <div className="form-group" style={{ flex: 2 }}>
+                    <label>{llmForm.provider === 'ollama' ? 'Base URL' : 'API Key'}</label>
+                    {llmForm.provider === 'ollama' ? (
+                      <input type="text" className="form-control"
+                        value={llmForm.urlKey} onChange={e => setLlmForm({ ...llmForm, urlKey: e.target.value })}
+                        placeholder="http://localhost:11434" />
+                    ) : (
+                      <PasswordInput
+                        value={llmForm.urlKey}
+                        onChange={e => setLlmForm({ ...llmForm, urlKey: e.target.value })}
+                        placeholder="API Key..."
+                        savedHint={llmConnections.some(c => c.provider === llmForm.provider && c.has_key)}
+                      />
+                    )}
+                  </div>
+                  <div className="form-group" style={{ flex: 1 }}>
+                    <label>Model</label>
+                    <input type="text" className="form-control" value={llmForm.model}
+                      onChange={e => setLlmForm({ ...llmForm, model: e.target.value })} />
+                  </div>
+                </div>
+                <button className="btn btn-primary" onClick={handleLlmSubmit} disabled={llmTesting}>
+                  {llmTesting ? <><span className="spinner" /> Testing...</> : 'Save Connection'}
+                </button>
+              </div>
+            ) : null}
+          </div>
+
           {/* Jira Connection Section */}
           <div className="section-card">
             <div className="section-card-header">
