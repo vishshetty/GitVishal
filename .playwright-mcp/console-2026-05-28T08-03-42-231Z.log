@@ -1,0 +1,47 @@
+[   45782ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:6277/config:0
+[  737437ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:6277/stdio?command=mcp-server-everything&args=&env=undefined&transportType=stdio:0
+[  737445ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:6277/.well-known/oauth-protected-resource/stdio?command=mcp-server-everything&args=&env=undefined&transportType=stdio:0
+[  737450ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:6277/.well-known/oauth-protected-resource:0
+[  737457ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:6277/.well-known/oauth-authorization-server:0
+[  737462ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:6277/.well-known/openid-configuration:0
+[  737473ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:6277/register:0
+[  737474ms] [ERROR] Failed to connect to MCP Server via the MCP Inspector Proxy: http://localhost:6277/stdio?command=mcp-server-everything&args=&env=undefined&transportType=stdio: ServerError: HTTP 404: Invalid OAuth error response: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON. Raw body: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /register</pre>
+</body>
+</html>
+
+    at parseErrorResponse (http://localhost:6274/assets/index-zNfT6w38.js:21520:12)
+    at async registerClient (http://localhost:6274/assets/index-zNfT6w38.js:21995:11)
+    at async authInternal (http://localhost:6274/assets/index-zNfT6w38.js:21598:31)
+    at async auth (http://localhost:6274/assets/index-zNfT6w38.js:21525:12)
+    at async SSEClientTransport._authThenStart (http://localhost:6274/assets/index-zNfT6w38.js:42252:16)
+    at async SSEClientTransport.start (http://localhost:6274/assets/index-zNfT6w38.js:42348:12)
+    at async Client.connect (http://localhost:6274/assets/index-zNfT6w38.js:20455:5)
+    at async Client.connect (http://localhost:6274/assets/index-zNfT6w38.js:41542:5)
+    at async connect (http://localhost:6274/assets/index-zNfT6w38.js:43349:9) @ http://localhost:6274/assets/index-zNfT6w38.js:43369
+[  737484ms] [ERROR] ServerError: HTTP 404: Invalid OAuth error response: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON. Raw body: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /register</pre>
+</body>
+</html>
+
+    at parseErrorResponse (http://localhost:6274/assets/index-zNfT6w38.js:21520:12)
+    at async registerClient (http://localhost:6274/assets/index-zNfT6w38.js:21995:11)
+    at async authInternal (http://localhost:6274/assets/index-zNfT6w38.js:21598:31)
+    at async auth (http://localhost:6274/assets/index-zNfT6w38.js:21525:12)
+    at async SSEClientTransport._authThenStart (http://localhost:6274/assets/index-zNfT6w38.js:42252:16)
+    at async SSEClientTransport.start (http://localhost:6274/assets/index-zNfT6w38.js:42348:12)
+    at async Client.connect (http://localhost:6274/assets/index-zNfT6w38.js:20455:5)
+    at async Client.connect (http://localhost:6274/assets/index-zNfT6w38.js:41542:5)
+    at async connect (http://localhost:6274/assets/index-zNfT6w38.js:43349:9) @ http://localhost:6274/assets/index-zNfT6w38.js:43644

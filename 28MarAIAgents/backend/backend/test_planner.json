@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "createdAt": "2026-04-04T17:51:38.931Z",
+      "updatedAt": "2026-04-04T17:59:19.855Z",
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "api_key": "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",
+      "base_url": "",
+      "is_active": 1,
+      "_type": "llm"
+    },
+    {
+      "connection_name": "VishalJiraAPIToken",
+      "host": "vishalshetty22.atlassian.net",
+      "email": "vishalshetty22@gmail.com",
+      "api_token": "ATATT3xFfGF0kpyxrNEun2HGvtK9gumngY3sZPkqNIUxNjiW6DuJpqPDuz05AnKtj6bJuKug7Wn20l_mye7y_4tzj-H4SMYo-hgFfTGi-74phIQUivIfirePsVCLOzeEkYCf3pIAOYWYGVFI_cH4m2JuIoUEvYwQYxr2jbWafJlGjwup1v2pxYA=D81BA1B9",
+      "id": 1,
+      "createdAt": "2026-04-04T17:59:32.211Z",
+      "updatedAt": "2026-04-04T17:59:32.211Z",
+      "_type": "jira"
+    },
+    {
+      "project_key": "KAN-4",
+      "issues_used": "[\"KAN-4\"]",
+      "plan_json": "{\"overview\":\"Test plan for forgot password feature\",\"scope\":\"Forgot password functionality from login page\",\"objectives\":[\"Verify user can initiate password reset from login page\",\"Verify user receives password reset link via email\",\"Verify password reset link expiration\",\"Verify user can set a new password\"],\"test_strategy\":\"Black box testing with focus on user interface and email interactions\",\"test_types\":[\"Functional testing\",\"Usability testing\"],\"entry_criteria\":[\"User has a registered account\",\"User has access to their registered email\"],\"exit_criteria\":[\"User can successfully reset their password\",\"Password reset link expires after a defined time\"],\"test_cases\":[{\"id\":\"TC-001\",\"jira_ref\":\"KAN-4\",\"title\":\"Forgot password link is clickable from login page\",\"preconditions\":\"User is on the login page\",\"steps\":[\"Click on 'Forgot Password' link\",\"Verify link navigates to password reset page\"],\"expected_result\":\"User is navigated to password reset page\",\"priority\":\"High\"},{\"id\":\"TC-002\",\"jira_ref\":\"KAN-4\",\"title\":\"User can enter registered email for password reset\",\"preconditions\":\"User is on the password reset page\",\"steps\":[\"Enter registered email\",\"Submit email for password reset\"],\"expected_result\":\"System sends password reset link to the entered email\",\"priority\":\"High\"},{\"id\":\"TC-003\",\"jira_ref\":\"KAN-4\",\"title\":\"Password reset link is sent to user's email\",\"preconditions\":\"User has submitted their email for password reset\",\"steps\":[\"Check email for password reset link\",\"Verify link is received and is clickable\"],\"expected_result\":\"Password reset link is received in the email and is clickable\",\"priority\":\"High\"},{\"id\":\"TC-004\",\"jira_ref\":\"KAN-4\",\"title\":\"Password reset link expires after a defined time\",\"preconditions\":\"User has received the password reset link\",\"steps\":[\"Wait for the defined time to pass\",\"Attempt to use the password reset link\"],\"expected_result\":\"Password reset link has expired and cannot be used\",\"priority\":\"Medium\"},{\"id\":\"TC-005\",\"jira_ref\":\"KAN-4\",\"title\":\"User can set a new password\",\"preconditions\":\"User has clicked on the password reset link\",\"steps\":[\"Enter new password\",\"Confirm new password\",\"Submit new password\"],\"expected_result\":\"User's password is successfully reset\",\"priority\":\"High\"}],\"risks\":[\"Email delivery issues\",\"Link expiration time not clearly defined\"],\"timeline\":\"Insufficient information provided in Jira issues\"}",
+      "id": 1,
+      "createdAt": "2026-04-04T18:00:17.362Z",
+      "updatedAt": "2026-04-04T18:00:17.362Z",
+      "_type": "history"
+    }
+  ],
+  "nextId": 2
+}

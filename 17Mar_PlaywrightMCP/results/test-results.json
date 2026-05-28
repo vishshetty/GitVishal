@@ -1,0 +1,436 @@
+{
+  "config": {
+    "configFile": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\playwright.config.ts",
+    "rootDir": "E:/AI/Projects/17Mar_PlaywrightMCP/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "E:/AI/Projects/17Mar_PlaywrightMCP/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "E:/AI/Projects/17Mar_PlaywrightMCP/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "results/playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "results/test-results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "login_negative.spec.ts",
+      "file": "login_negative.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "TC-N001: Login fails with invalid email format",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 55747,
+                  "error": {
+                    "message": "TypeError: Cannot read properties of undefined (reading 'includes')",
+                    "stack": "TypeError: Cannot read properties of undefined (reading 'includes')\n    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:23:65)\n    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:23:43",
+                    "location": {
+                      "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                      "column": 65,
+                      "line": 23
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m   \u001b[90m// VWO shows \"Required field\" for invalid/missing email\u001b[39m\n \u001b[90m 22 |\u001b[39m   \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"error\"]'\u001b[39m)\u001b[33m.\u001b[39mallInnerTexts()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m   \u001b[36mconst\u001b[39m hasRequiredFieldError \u001b[33m=\u001b[39m errorText\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m\n \u001b[90m 25 |\u001b[39m   expect(hasRequiredFieldError\u001b[33m,\u001b[39m \u001b[32m`Expected a \"Required field\" validation error. Got: ${JSON.stringify(errorText)}`\u001b[39m)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                        "column": 65,
+                        "line": 23
+                      },
+                      "message": "TypeError: Cannot read properties of undefined (reading 'includes')\n\n\u001b[0m \u001b[90m 21 |\u001b[39m   \u001b[90m// VWO shows \"Required field\" for invalid/missing email\u001b[39m\n \u001b[90m 22 |\u001b[39m   \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"error\"]'\u001b[39m)\u001b[33m.\u001b[39mallInnerTexts()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m   \u001b[36mconst\u001b[39m hasRequiredFieldError \u001b[33m=\u001b[39m errorText\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m\n \u001b[90m 25 |\u001b[39m   expect(hasRequiredFieldError\u001b[33m,\u001b[39m \u001b[32m`Expected a \"Required field\" validation error. Got: ${JSON.stringify(errorText)}`\u001b[39m)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m\n\u001b[2m    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:23:65)\u001b[22m\n\u001b[2m    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:23:43\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-04-02T05:48:57.744Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N001-Login-fails-with-invalid-email-format-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N001-Login-fails-with-invalid-email-format-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N001-Login-fails-with-invalid-email-format-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N001-Login-fails-with-invalid-email-format-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                    "column": 65,
+                    "line": 23
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "768f96863018c2eb289c-557ab68074831fb12bae",
+          "file": "login_negative.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "TC-N002: Login fails when email field is empty",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 35117,
+                  "error": {
+                    "message": "TypeError: Cannot read properties of undefined (reading 'includes')",
+                    "stack": "TypeError: Cannot read properties of undefined (reading 'includes')\n    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:41:52)\n    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:41:30",
+                    "location": {
+                      "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                      "column": 52,
+                      "line": 41
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m   \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"error\"]'\u001b[39m)\u001b[33m.\u001b[39mallInnerTexts()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 |\u001b[39m   \u001b[36mconst\u001b[39m hasError \u001b[33m=\u001b[39m errorText\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m) \u001b[33m||\u001b[39m t\u001b[33m.\u001b[39mtrim() \u001b[33m!==\u001b[39m \u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 |\u001b[39m\n \u001b[90m 43 |\u001b[39m   expect(hasError\u001b[33m,\u001b[39m \u001b[32m`Expected a validation error for empty email. Got: ${JSON.stringify(errorText)}`\u001b[39m)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 44 |\u001b[39m   expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mtoContain(\u001b[32m'login'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                        "column": 52,
+                        "line": 41
+                      },
+                      "message": "TypeError: Cannot read properties of undefined (reading 'includes')\n\n\u001b[0m \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m   \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"error\"]'\u001b[39m)\u001b[33m.\u001b[39mallInnerTexts()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 |\u001b[39m   \u001b[36mconst\u001b[39m hasError \u001b[33m=\u001b[39m errorText\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m) \u001b[33m||\u001b[39m t\u001b[33m.\u001b[39mtrim() \u001b[33m!==\u001b[39m \u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 |\u001b[39m\n \u001b[90m 43 |\u001b[39m   expect(hasError\u001b[33m,\u001b[39m \u001b[32m`Expected a validation error for empty email. Got: ${JSON.stringify(errorText)}`\u001b[39m)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 44 |\u001b[39m   expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mtoContain(\u001b[32m'login'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:41:52)\u001b[22m\n\u001b[2m    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:41:30\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-04-02T05:50:01.364Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N002-Login-fails-when-email-field-is-empty-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N002-Login-fails-when-email-field-is-empty-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N002-Login-fails-when-email-field-is-empty-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N002-Login-fails-when-email-field-is-empty-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                    "column": 52,
+                    "line": 41
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "768f96863018c2eb289c-f0332ed4d077fa71a8e9",
+          "file": "login_negative.spec.ts",
+          "line": 32,
+          "column": 5
+        },
+        {
+          "title": "TC-N003: Login fails when password field is empty",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 27788,
+                  "error": {
+                    "message": "TypeError: Cannot read properties of undefined (reading 'includes')",
+                    "stack": "TypeError: Cannot read properties of undefined (reading 'includes')\n    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:57:52)\n    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:57:30",
+                    "location": {
+                      "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                      "column": 52,
+                      "line": 57
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 55 |\u001b[39m\n \u001b[90m 56 |\u001b[39m   \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"error\"]'\u001b[39m)\u001b[33m.\u001b[39mallInnerTexts()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 57 |\u001b[39m   \u001b[36mconst\u001b[39m hasError \u001b[33m=\u001b[39m errorText\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m) \u001b[33m||\u001b[39m t\u001b[33m.\u001b[39mtrim() \u001b[33m!==\u001b[39m \u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m   expect(hasError\u001b[33m,\u001b[39m \u001b[32m`Expected a validation error for empty password. Got: ${JSON.stringify(errorText)}`\u001b[39m)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m   expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mtoContain(\u001b[32m'login'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                        "column": 52,
+                        "line": 57
+                      },
+                      "message": "TypeError: Cannot read properties of undefined (reading 'includes')\n\n\u001b[0m \u001b[90m 55 |\u001b[39m\n \u001b[90m 56 |\u001b[39m   \u001b[36mconst\u001b[39m errorText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"error\"]'\u001b[39m)\u001b[33m.\u001b[39mallInnerTexts()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 57 |\u001b[39m   \u001b[36mconst\u001b[39m hasError \u001b[33m=\u001b[39m errorText\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m) \u001b[33m||\u001b[39m t\u001b[33m.\u001b[39mtrim() \u001b[33m!==\u001b[39m \u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m   expect(hasError\u001b[33m,\u001b[39m \u001b[32m`Expected a validation error for empty password. Got: ${JSON.stringify(errorText)}`\u001b[39m)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m   expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mtoContain(\u001b[32m'login'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:57:52)\u001b[22m\n\u001b[2m    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:57:30\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-04-02T05:50:41.939Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N003-Log-75628-hen-password-field-is-empty-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N003-Log-75628-hen-password-field-is-empty-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N003-Log-75628-hen-password-field-is-empty-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N003-Log-75628-hen-password-field-is-empty-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                    "column": 52,
+                    "line": 57
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "768f96863018c2eb289c-693dea4a201774d3f837",
+          "file": "login_negative.spec.ts",
+          "line": 48,
+          "column": 5
+        },
+        {
+          "title": "TC-N004: Login fails with valid email but incorrect password",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 34975,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-04-02T05:51:16.009Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "768f96863018c2eb289c-930a6ffd71794f3e8542",
+          "file": "login_negative.spec.ts",
+          "line": 64,
+          "column": 5
+        },
+        {
+          "title": "TC-N005: Login fails when password contains only spaces",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 50582,
+                  "error": {
+                    "message": "TypeError: Cannot read properties of undefined (reading 'includes')",
+                    "stack": "TypeError: Cannot read properties of undefined (reading 'includes')\n    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:101:7)\n    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:100:32",
+                    "location": {
+                      "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                      "column": 7,
+                      "line": 101
+                    },
+                    "snippet": "\u001b[0m \u001b[90m  99 |\u001b[39m\n \u001b[90m 100 |\u001b[39m   \u001b[36mconst\u001b[39m hasError \u001b[33m=\u001b[39m allMessages\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 101 |\u001b[39m     t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m) \u001b[33m||\u001b[39m\n \u001b[90m     |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 102 |\u001b[39m     t\u001b[33m.\u001b[39mtoLowerCase()\u001b[33m.\u001b[39mincludes(\u001b[32m'invalid'\u001b[39m) \u001b[33m||\u001b[39m\n \u001b[90m 103 |\u001b[39m     t\u001b[33m.\u001b[39mtoLowerCase()\u001b[33m.\u001b[39mincludes(\u001b[32m'did not match'\u001b[39m) \u001b[33m||\u001b[39m\n \u001b[90m 104 |\u001b[39m     t\u001b[33m.\u001b[39mtrim() \u001b[33m!==\u001b[39m \u001b[32m''\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                        "column": 7,
+                        "line": 101
+                      },
+                      "message": "TypeError: Cannot read properties of undefined (reading 'includes')\n\n\u001b[0m \u001b[90m  99 |\u001b[39m\n \u001b[90m 100 |\u001b[39m   \u001b[36mconst\u001b[39m hasError \u001b[33m=\u001b[39m allMessages\u001b[33m.\u001b[39msome((t\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 101 |\u001b[39m     t\u001b[33m.\u001b[39mincludes(\u001b[32m'Required field'\u001b[39m) \u001b[33m||\u001b[39m\n \u001b[90m     |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 102 |\u001b[39m     t\u001b[33m.\u001b[39mtoLowerCase()\u001b[33m.\u001b[39mincludes(\u001b[32m'invalid'\u001b[39m) \u001b[33m||\u001b[39m\n \u001b[90m 103 |\u001b[39m     t\u001b[33m.\u001b[39mtoLowerCase()\u001b[33m.\u001b[39mincludes(\u001b[32m'did not match'\u001b[39m) \u001b[33m||\u001b[39m\n \u001b[90m 104 |\u001b[39m     t\u001b[33m.\u001b[39mtrim() \u001b[33m!==\u001b[39m \u001b[32m''\u001b[39m\u001b[0m\n\u001b[2m    at some (E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:101:7)\u001b[22m\n\u001b[2m    at E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts:100:32\u001b[22m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-04-02T05:51:52.001Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N005-Log-ae46e-ssword-contains-only-spaces-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N005-Log-ae46e-ssword-contains-only-spaces-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N005-Log-ae46e-ssword-contains-only-spaces-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\test-results\\login_negative-TC-N005-Log-ae46e-ssword-contains-only-spaces-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "E:\\AI\\Projects\\17Mar_PlaywrightMCP\\tests\\login_negative.spec.ts",
+                    "column": 7,
+                    "line": 101
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "768f96863018c2eb289c-eb1b788a439784b1282a",
+          "file": "login_negative.spec.ts",
+          "line": 88,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-04-02T05:48:54.426Z",
+    "duration": 231704.812,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

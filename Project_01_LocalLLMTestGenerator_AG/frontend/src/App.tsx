@@ -21,7 +21,7 @@ interface GenerationHistory {
 
 function App() {
   const [reqText, setReqText] = useState('Generate test cases for https://login.drde.so/sign_in?request_host=www.sdetclub.com#email');
-  const [provider, setProvider] = useState<'ollama' | 'groq' | 'openai'>('groq');
+  const [provider, setProvider] = useState<'ollama' | 'groq' | 'openai' | 'demo'>('demo');
   const [apiKey, setApiKey] = useState('*******************');
   const [showApiKey, setShowApiKey] = useState(false);
   const [numCases, setNumCases] = useState(6);
@@ -39,6 +39,18 @@ function App() {
     setIsGenerating(true);
 
     try {
+      if (provider === 'demo') {
+        // Simulate a delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        const mockCases: TestCaseRow[] = [
+          { id: "TC-001", description: "Successful login with valid credentials", type: "Positive", priority: "High", steps: ["Enter valid email", "Enter valid password", "Click Login"], expectedResult: "User is redirected to dashboard" },
+          { id: "TC-002", description: "Login failure with invalid password", type: "Negative", priority: "Medium", steps: ["Enter valid email", "Enter wrong password", "Click Login"], expectedResult: "Error message 'Invalid credentials' is displayed" },
+          { id: "TC-003", description: "Empty email validation", type: "Edge Case", priority: "Low", steps: ["Leave email empty", "Enter password", "Click Login"], expectedResult: "Browser validation message or UI error appears" }
+        ];
+        updateStateWithResults(mockCases);
+        return;
+      }
+
       // Determine what model to use mapping based on provider
       const model = provider === 'groq' ? 'llama-3.1-8b-instant' : provider === 'openai' ? 'gpt-3.5-turbo' : 'llama3.2';
       const endpoint = provider === 'ollama' ? 'http://localhost:11434/v1' : provider === 'groq' ? 'https://api.groq.com/openai/v1' : undefined;
@@ -54,40 +66,50 @@ function App() {
           prompt: `Generate exactly ${numCases} test cases.\n\nRequirements:\n${reqText}`
         })
       });
+      
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         try {
-          const parsedText = data.text.trim();
-          // if wrapped in markdown blocks, strip them
-          const cleanJson = parsedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-          const cases = JSON.parse(cleanJson);
-          setCurrentTestCases(cases);
-
-          const newHistoryEntry: GenerationHistory = {
-            id: Date.now(),
-            timestamp: new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date()),
-            req: reqText,
-            numCases: cases.length || numCases,
-            testCases: cases,
-            provider: provider
-          };
-          const newHistory = [newHistoryEntry, ...history];
-          setHistory(newHistory);
-          localStorage.setItem('llmHistoryNew', JSON.stringify(newHistory));
-
+          const text = data.text;
+          // Robust JSON extraction: look for the first [ and last ]
+          const startIdx = text.indexOf('[');
+          const endIdx = text.lastIndexOf(']');
+          
+          if (startIdx === -1 || endIdx === -1) {
+             throw new Error("Could not find a JSON array in the response.");
+          }
+          
+          const jsonStr = text.substring(startIdx, endIdx + 1);
+          const cases = JSON.parse(jsonStr);
+          updateStateWithResults(cases);
         } catch (e) {
           console.error("Failed to parse output", e, data.text);
-          alert("Generated test cases couldn't be parsed. Please try again.");
+          alert("The LLM response was not valid JSON. You can see the raw output in the console.");
         }
       } else {
-        alert("Generation Error: " + data.error);
+        alert(`Generation Error (${res.status}): ${data.error || 'Unknown error'}`);
       }
     } catch (err: any) {
-      alert("Network Error: " + err.message);
+      alert("Network Error: " + err.message + ". Make sure the backend is running on port 3001.");
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const updateStateWithResults = (cases: TestCaseRow[]) => {
+    setCurrentTestCases(cases);
+    const newHistoryEntry: GenerationHistory = {
+      id: Date.now(),
+      timestamp: new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date()),
+      req: reqText,
+      numCases: cases.length,
+      testCases: cases,
+      provider: provider
+    };
+    const newHistory = [newHistoryEntry, ...history];
+    setHistory(newHistory);
+    localStorage.setItem('llmHistoryNew', JSON.stringify(newHistory));
   };
 
   const handleDownloadCSV = () => {
@@ -132,6 +154,15 @@ function App() {
             <label>LLM Provider <span className="required">*</span></label>
             <div className="provider-options">
               <div
+                className={`provider-card ${provider === 'demo' ? 'active' : ''}`}
+                onClick={() => setProvider('demo')}
+              >
+                <div className="dot blue"></div>
+                <div className="provider-name">Demo</div>
+                <div className="provider-type">(No LLM)</div>
+              </div>
+
+              <div
                 className={`provider-card ${provider === 'ollama' ? 'active' : ''}`}
                 onClick={() => setProvider('ollama')}
               >
@@ -161,13 +192,14 @@ function App() {
           </div>
 
           {(provider === 'groq' || provider === 'openai') && (
-            <div className="form-group">
+            <div className="form-group animate-fade-in">
               <label>{provider === 'groq' ? 'Groq' : 'OpenAI'} API Key</label>
               <div className="api-key-input-wrapper">
                 <input
                   type={showApiKey ? "text" : "password"}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
+                  placeholder={`Enter your ${provider} API key...`}
                 />
                 <button
                   type="button"
@@ -177,6 +209,22 @@ function App() {
                 >
                   {showApiKey ? "🙈" : "👁️"}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {provider === 'ollama' && (
+            <div className="form-group animate-fade-in">
+              <div className="info-box">
+                <p><strong>Note:</strong> Ensure Ollama is running locally (<code>ollama serve</code>) and you have the <code>llama3.2</code> model installed.</p>
+              </div>
+            </div>
+          )}
+
+          {provider === 'demo' && (
+            <div className="form-group animate-fade-in">
+              <div className="info-box blue">
+                <p><strong>Demo Mode:</strong> No LLM will be called. It will generate sample test cases for demonstration purposes.</p>
               </div>
             </div>
           )}
@@ -284,7 +332,11 @@ function App() {
                 className="history-item"
                 onClick={() => setCurrentTestCases(h.testCases)}
               >
-                <div className="history-date">🕒 {h.timestamp} {h.provider && <span className="history-provider-badge">{h.provider === 'ollama' ? '🦙 Ollama' : h.provider === 'groq' ? '⚡ Groq' : '🤖 OpenAI'}</span>}</div>
+                <div className="history-date">🕒 {h.timestamp} {h.provider && <span className="history-provider-badge">
+                  {h.provider === 'ollama' ? '🦙 Ollama' : 
+                   h.provider === 'groq' ? '⚡ Groq' : 
+                   h.provider === 'demo' ? '🎮 Demo' : '🤖 OpenAI'}
+                </span>}</div>
                 <div className="history-req">{h.req.length > 40 ? h.req.substring(0, 40) + "..." : h.req}</div>
                 <div className="history-cases">{h.numCases} test cases</div>
               </div>

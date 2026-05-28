@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Case RAG Explorer</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Test Case RAG Explorer</h1>
+            <p class="subtitle">Excel -> Nomic Embed (local) -> ChromaDB -> Top-5 -> Groq llama-3.3-70b-versatile</p>
+            <p class="db-info">DB: Collection 'test_cases' · 100 test cases · source: test_cases.xlsx</p>
+        </header>
+
+        <div class="section-title">1. Pipeline (always-on view)</div>
+        <div class="pipeline">
+            <div class="pipeline-flow">
+                <div class="pipeline-box">
+                    <div class="pipeline-label">Question</div>
+                    <div class="pipeline-value" id="pipeline-question">Enter a query about test cases...</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-box">
+                    <div class="pipeline-label">Embed (HuggingFace)</div>
+                    <div class="pipeline-value">all-MiniLM-L6-v2<br>384-dim vectors</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-box highlight">
+                    <div class="pipeline-label">ChromaDB</div>
+                    <div class="pipeline-value">cosine search<br><span id="pipeline-chunks">100 chunks</span></div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-box">
+                    <div class="pipeline-label">Top-5 Chunks</div>
+                    <div class="pipeline-value" id="pipeline-top">retrieved chunks</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-box">
+                    <div class="pipeline-label">Groq LLM</div>
+                    <div class="pipeline-value">llama-3.3-70b<br>versatile</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-box">
+                    <div class="pipeline-label">Answer</div>
+                    <div class="pipeline-value" id="pipeline-answer">generated</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">2. Ask a question</div>
+        <div class="search-section">
+            <form id="searchForm" class="search-row">
+                <input type="text" id="query" placeholder="Enter query (e.g., Do we have test cases related to login?)" required />
+                <button type="submit">Ask</button>
+            </form>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('searchForm');
+        const resultsDiv = document.getElementById('results');
+        const pipelineQuestion = document.getElementById('pipeline-question');
+        const pipelineTop = document.getElementById('pipeline-top');
+        const pipelineAnswer = document.getElementById('pipeline-answer');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = document.getElementById('query').value;
+            pipelineQuestion.textContent = query;
+            pipelineTop.innerHTML = '<span class="chunk-badge">...</span>';
+            pipelineAnswer.textContent = 'generating...';
+
+            resultsDiv.innerHTML = '<div class="loading"><span class="spinner"></span>Retrieving test cases...</div>';
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query})
+            });
+            const data = await response.json();
+
+            // Update pipeline
+            let badges = '';
+            data.chunks.slice(0, 5).forEach((c, i) => {
+                badges += `<span class="chunk-badge">${c.id}</span>`;
+            });
+            pipelineTop.innerHTML = badges;
+            pipelineAnswer.textContent = 'generated';
+
+            // Build results HTML
+            let html = '';
+
+            // Retrieved chunks section
+            html += `<div class="results-title">Retrieved chunks (top ${data.chunks.length})</div>`;
+            html += `<p class="results-subtitle">Lower distance = more similar. These are the chunks sent to Groq as context.</p>`;
+
+            data.chunks.forEach((chunk, idx) => {
+                html += `<div class="chunk-card">
+                    <div class="chunk-header">
+                        <div class="chunk-num">${idx + 1}</div>
+                        <div class="chunk-meta">${chunk.id} · ${chunk.module} · ${chunk.feature}</div>
+                        <div class="chunk-scores">distance: ${chunk.distance} · similarity: ${(1 - chunk.distance).toFixed(4)}</div>
+                    </div>
+                    <div class="chunk-body">${escapeHtml(chunk.text)}</div>
+                </div>`;
+            });
+
+            // LLM Answer section
+            html += `<div class="answer-section">
+                <h3>LLM Answer & Regression Suggestions</h3>
+                <div class="answer-body">${escapeHtml(data.answer)}</div>
+            </div>`;
+
+            resultsDiv.innerHTML = html;
+        });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

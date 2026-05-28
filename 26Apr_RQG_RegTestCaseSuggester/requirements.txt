@@ -1,0 +1,10 @@
+openpyxl
+pandas
+chromadb
+langchain>=0.2.0
+langchain-community
+fastapi
+uvicorn[standard]
+requests
+python-dotenv
+sentence-transformers

@@ -1,0 +1,213 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - heading "MCP Inspector v0.21.2" [level=1] [ref=e8]
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - text: Transport Type
+            - combobox "Transport Type" [ref=e12] [cursor=pointer]:
+              - generic: STDIO
+              - img [ref=e13]
+          - generic [ref=e15]:
+            - text: Command
+            - textbox "Command" [ref=e16]: fastmcp
+          - generic [ref=e17]:
+            - text: Arguments
+            - textbox "Arguments" [ref=e18]:
+              - /placeholder: Arguments (space-separated)
+              - text: run server.py:mcp
+          - button "Environment Variables" [ref=e20] [cursor=pointer]:
+            - img [ref=e21]
+            - text: Environment Variables
+          - generic [ref=e23]:
+            - button "Server Entry" [ref=e24] [cursor=pointer]:
+              - img [ref=e25]
+              - text: Server Entry
+            - button "Servers File" [ref=e28] [cursor=pointer]:
+              - img [ref=e29]
+              - text: Servers File
+          - button "Authentication" [ref=e33] [cursor=pointer]:
+            - img [ref=e34]
+            - text: Authentication
+          - button "Configuration" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - img [ref=e40]
+            - text: Configuration
+          - generic [ref=e43]:
+            - generic [ref=e95]:
+              - button "Restart" [ref=e96] [cursor=pointer]:
+                - img [ref=e97]
+                - text: Restart
+              - button "Disconnect" [ref=e100] [cursor=pointer]:
+                - img [ref=e101]
+                - text: Disconnect
+            - generic [ref=e49]: Connected
+            - generic [ref=e109]:
+              - generic [ref=e110]:
+                - img [ref=e111]
+                - generic [ref=e114]: EnterpriseQAMCP
+              - generic [ref=e115]: "Version: 3.2.4"
+            - generic [ref=e116]:
+              - text: Logging Level
+              - combobox "Logging Level" [ref=e117] [cursor=pointer]:
+                - generic: debug
+                - img [ref=e118]
+        - generic [ref=e51]:
+          - combobox [ref=e52] [cursor=pointer]:
+            - generic: System
+            - img [ref=e53]
+          - generic [ref=e55]:
+            - link "Inspector Documentation" [ref=e56] [cursor=pointer]:
+              - /url: https://modelcontextprotocol.io/docs/tools/inspector
+              - img [ref=e57]
+            - link "Debugging Guide" [ref=e60] [cursor=pointer]:
+              - /url: https://modelcontextprotocol.io/docs/tools/debugging
+              - img [ref=e61]
+            - link "Report bugs or contribute on GitHub" [ref=e70] [cursor=pointer]:
+              - /url: https://github.com/modelcontextprotocol/inspector
+              - img [ref=e71]
+      - generic "Resize sidebar" [ref=e74]
+    - generic [ref=e75]:
+      - generic [ref=e120]:
+        - tablist [ref=e121]:
+          - tab "Resources" [ref=e122] [cursor=pointer]:
+            - img [ref=e123]
+            - text: Resources
+          - tab "Prompts" [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+            - text: Prompts
+          - tab "Tools" [active] [selected] [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+            - text: Tools
+          - tab "Tasks" [disabled]:
+            - img
+            - text: Tasks
+          - tab "Apps" [ref=e135] [cursor=pointer]:
+            - img [ref=e136]
+            - text: Apps
+          - tab "Ping" [ref=e138] [cursor=pointer]:
+            - img [ref=e139]
+            - text: Ping
+          - tab "Sampling" [ref=e142] [cursor=pointer]:
+            - img [ref=e143]
+            - text: Sampling
+          - tab "Elicitations" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+            - text: Elicitations
+          - tab "Roots" [ref=e149] [cursor=pointer]:
+            - img [ref=e150]
+            - text: Roots
+          - tab "Auth" [ref=e155] [cursor=pointer]:
+            - img [ref=e156]
+            - text: Auth
+          - tab "Metadata" [ref=e160] [cursor=pointer]:
+            - img [ref=e161]
+            - text: Metadata
+        - tabpanel "Tools" [ref=e280]:
+          - generic [ref=e281]:
+            - generic [ref=e282]:
+              - generic [ref=e284]:
+                - heading "Tools" [level=3] [ref=e285]
+                - button "Search" [ref=e287] [cursor=pointer]:
+                  - img [ref=e288]
+              - generic [ref=e291]:
+                - button "List Tools" [ref=e292] [cursor=pointer]
+                - button "Clear" [disabled]
+            - generic [ref=e293]:
+              - heading "Select a tool" [level=3] [ref=e296]
+              - alert [ref=e298]:
+                - generic [ref=e299]: Select a tool from the list to view its details and run it
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - heading "History" [level=2] [ref=e89]
+            - button "Clear" [ref=e196] [cursor=pointer]
+          - list [ref=e197]:
+            - listitem [ref=e198]:
+              - generic [ref=e199] [cursor=pointer]:
+                - generic [ref=e200]: 2. logging/setLevel
+                - generic [ref=e201]: ▶
+            - listitem [ref=e202]:
+              - generic [ref=e203] [cursor=pointer]:
+                - generic [ref=e204]: 1. initialize
+                - generic [ref=e205]: ▶
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - heading "Server Notifications" [level=2] [ref=e93]
+            - button "Clear" [ref=e206] [cursor=pointer]
+          - list [ref=e207]:
+            - listitem [ref=e208]:
+              - generic [ref=e209] [cursor=pointer]:
+                - generic [ref=e210]: 18. notifications/message
+                - generic [ref=e211]: ▶
+            - listitem [ref=e212]:
+              - generic [ref=e213] [cursor=pointer]:
+                - generic [ref=e214]: 17. notifications/message
+                - generic [ref=e215]: ▶
+            - listitem [ref=e216]:
+              - generic [ref=e217] [cursor=pointer]:
+                - generic [ref=e218]: 16. notifications/message
+                - generic [ref=e219]: ▶
+            - listitem [ref=e220]:
+              - generic [ref=e221] [cursor=pointer]:
+                - generic [ref=e222]: 15. notifications/message
+                - generic [ref=e223]: ▶
+            - listitem [ref=e224]:
+              - generic [ref=e225] [cursor=pointer]:
+                - generic [ref=e226]: 14. notifications/message
+                - generic [ref=e227]: ▶
+            - listitem [ref=e228]:
+              - generic [ref=e229] [cursor=pointer]:
+                - generic [ref=e230]: 13. notifications/message
+                - generic [ref=e231]: ▶
+            - listitem [ref=e232]:
+              - generic [ref=e233] [cursor=pointer]:
+                - generic [ref=e234]: 12. notifications/message
+                - generic [ref=e235]: ▶
+            - listitem [ref=e236]:
+              - generic [ref=e237] [cursor=pointer]:
+                - generic [ref=e238]: 11. notifications/message
+                - generic [ref=e239]: ▶
+            - listitem [ref=e240]:
+              - generic [ref=e241] [cursor=pointer]:
+                - generic [ref=e242]: 10. notifications/message
+                - generic [ref=e243]: ▶
+            - listitem [ref=e244]:
+              - generic [ref=e245] [cursor=pointer]:
+                - generic [ref=e246]: 9. notifications/message
+                - generic [ref=e247]: ▶
+            - listitem [ref=e248]:
+              - generic [ref=e249] [cursor=pointer]:
+                - generic [ref=e250]: 8. notifications/message
+                - generic [ref=e251]: ▶
+            - listitem [ref=e252]:
+              - generic [ref=e253] [cursor=pointer]:
+                - generic [ref=e254]: 7. notifications/message
+                - generic [ref=e255]: ▶
+            - listitem [ref=e256]:
+              - generic [ref=e257] [cursor=pointer]:
+                - generic [ref=e258]: 6. notifications/message
+                - generic [ref=e259]: ▶
+            - listitem [ref=e260]:
+              - generic [ref=e261] [cursor=pointer]:
+                - generic [ref=e262]: 5. notifications/message
+                - generic [ref=e263]: ▶
+            - listitem [ref=e264]:
+              - generic [ref=e265] [cursor=pointer]:
+                - generic [ref=e266]: 4. notifications/message
+                - generic [ref=e267]: ▶
+            - listitem [ref=e268]:
+              - generic [ref=e269] [cursor=pointer]:
+                - generic [ref=e270]: 3. notifications/message
+                - generic [ref=e271]: ▶
+            - listitem [ref=e272]:
+              - generic [ref=e273] [cursor=pointer]:
+                - generic [ref=e274]: 2. notifications/message
+                - generic [ref=e275]: ▶
+            - listitem [ref=e276]:
+              - generic [ref=e277] [cursor=pointer]:
+                - generic [ref=e278]: 1. notifications/message
+                - generic [ref=e279]: ▶
+  - region "Notifications (F8)":
+    - list

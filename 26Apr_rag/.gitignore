@@ -1,0 +1,17 @@
+# Environment / Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+venv/
+env/
+
+# ChromaDB local store
+chroma_db/
+
+# OS files
+.DS_Store
+Thumbs.db
